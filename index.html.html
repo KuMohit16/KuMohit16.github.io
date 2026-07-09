@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mohit Kumar Shersiya — Video Editor & Content Creator</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --black:#0a0a0a; --white:#f5f0e8; --accent:#ff3c00; --gray:#1a1a1a; }
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif;font-weight:300;overflow-x:hidden;cursor:none}
+
+  #cur-dot{width:10px;height:10px;background:var(--accent);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+  #cur-ring{width:34px;height:34px;border:1.5px solid rgba(255,60,0,0.6);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .2s,height .2s,border-color .2s}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:flex-end;align-items:center;padding:24px 48px;background:linear-gradient(to bottom,rgba(10,10,10,0.85),transparent)}
+  .nav-links{display:flex;gap:36px}
+  .nav-links a{color:var(--white);text-decoration:none;font-size:0.75rem;letter-spacing:0.18em;text-transform:uppercase;opacity:0.6;transition:opacity 0.2s}
+  .nav-links a:hover{opacity:1}
+
+  .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:80px 48px;position:relative;overflow:hidden;background:linear-gradient(135deg,#0a0a0a 0%,#1a0800 50%,#0a0a0a 100%)}
+  .hero-watermark{font-family:'Bebas Neue',sans-serif;font-size:clamp(120px,22vw,300px);line-height:1;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,0.05);position:absolute;right:-10px;top:50%;transform:translateY(-50%);pointer-events:none;user-select:none}
+  .hero-tag{font-size:0.72rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+  .hero-tag::before{content:'';display:block;width:40px;height:1px;background:var(--accent)}
+  .hero-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,9vw,118px);line-height:0.88;letter-spacing:0.02em;margin-bottom:28px;position:relative;z-index:1}
+  .hero-name span{color:var(--accent)}
+  .hero-desc{max-width:400px;font-size:0.95rem;line-height:1.75;opacity:0.55;position:relative;z-index:1}
+  .hero-scroll{position:absolute;right:48px;bottom:40px;writing-mode:vertical-rl;font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;opacity:0.25;display:flex;align-items:center;gap:10px}
+  .hero-scroll::after{content:'';display:block;width:1px;height:56px;background:var(--white);animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.25}50%{opacity:.9}}
+
+  .channels-strip{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);background:#0d0d0d}
+  .channel-pill{display:flex;align-items:center;justify-content:space-between;padding:28px 48px;text-decoration:none;color:var(--white);position:relative;overflow:hidden;border-right:1px solid rgba(255,255,255,0.06);transition:background 0.3s}
+  .channel-pill:last-child{border-right:none}
+  .channel-pill::after{content:'';position:absolute;left:0;bottom:0;width:0;height:2px;background:var(--accent);transition:width 0.4s cubic-bezier(0.25,0.46,0.45,0.94)}
+  .channel-pill:hover{background:rgba(255,255,255,0.03)}
+  .channel-pill:hover::after{width:100%}
+  .channel-pill-left{display:flex;align-items:center;gap:16px}
+  .channel-pill svg{width:18px;height:18px;fill:var(--accent);flex-shrink:0}
+  .channel-pill-meta{display:flex;flex-direction:column;gap:3px}
+  .channel-pill-type{font-size:0.58rem;opacity:0.35;text-transform:uppercase;letter-spacing:0.2em}
+  .channel-pill-name{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.08em}
+  .channel-pill-arrow{font-size:1rem;opacity:0.25;transition:opacity 0.3s,transform 0.3s}
+  .channel-pill:hover .channel-pill-arrow{opacity:1;transform:translateX(5px);color:var(--accent)}
+
+  #work{padding:80px 48px;background:var(--black)}
+  .section-label{font-size:0.68rem;letter-spacing:0.32em;text-transform:uppercase;color:var(--accent);margin-bottom:48px;display:flex;align-items:center;gap:16px}
+  .section-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.07)}
+  .work-grid{display:flex;flex-direction:column;gap:20px}
+  .work-item{background:var(--gray);overflow:hidden}
+  .work-thumb{width:100%;aspect-ratio:21/9;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#111}
+  .work-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 0.5s ease,opacity 0.3s ease;opacity:0.88}
+  .work-item:hover .work-thumb img{transform:scale(1.04);opacity:1}
+  .play-btn{position:relative;z-index:2;width:56px;height:56px;border:1.5px solid rgba(255,255,255,0.35);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.3s;backdrop-filter:blur(4px);background:rgba(0,0,0,0.3)}
+  .work-item:hover .play-btn{background:var(--accent);border-color:var(--accent);transform:scale(1.12)}
+  .play-btn svg{width:18px;height:18px;fill:var(--white);margin-left:3px}
+  .work-info{padding:18px 20px;display:flex;justify-content:space-between;align-items:center}
+  .work-title{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:0.05em}
+  .work-year{opacity:0.35;font-size:0.68rem;margin-top:3px}
+  .work-meta{font-size:0.65rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent)}
+
+  #about{padding:100px 48px;background:#111}
+  .skills-layout{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start}
+  .skills-heading{font-family:'Bebas Neue',sans-serif;font-size:clamp(34px,4.5vw,60px);line-height:1;margin-bottom:28px}
+  .skills-heading span{color:var(--accent)}
+  .skills-bio{font-size:0.95rem;line-height:1.8;opacity:0.58;margin-bottom:20px}
+  .skills-list{list-style:none}
+  .skill-item{border-top:1px solid rgba(255,255,255,0.07);padding:18px 0;display:flex;justify-content:space-between;align-items:center}
+  .skill-name{font-size:0.82rem;letter-spacing:0.1em;text-transform:uppercase}
+  .skill-bar{width:110px;height:2px;background:rgba(255,255,255,0.1);position:relative}
+  .skill-fill{position:absolute;left:0;top:0;bottom:0;background:var(--accent)}
+
+  #contact{padding:100px 48px;background:var(--black);text-align:center}
+  .contact-heading{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,10vw,130px);line-height:0.88;letter-spacing:0.02em;margin-bottom:40px}
+  .contact-heading span{color:var(--accent)}
+  .contact-sub{font-size:0.9rem;opacity:0.45;margin-bottom:36px}
+  .contact-email{display:inline-block;font-family:'Bebas Neue',sans-serif;font-size:clamp(18px,2.8vw,34px);color:var(--white);text-decoration:none;letter-spacing:0.1em;border-bottom:1px solid var(--accent);padding-bottom:6px;transition:color 0.2s;margin-bottom:56px}
+  .contact-email:hover{color:var(--accent)}
+
+  footer{border-top:1px solid rgba(255,255,255,0.06);padding:28px 48px;display:flex;justify-content:space-between;align-items:center;font-size:0.68rem;letter-spacing:0.1em;opacity:0.28}
+
+  @media(max-width:768px){
+    body{cursor:auto}
+    #cur-dot,#cur-ring{display:none}
+    nav,.hero,#work,#about,#contact{padding-left:24px;padding-right:24px}
+    .hero{padding-top:80px;padding-bottom:56px}
+    .channels-strip{grid-template-columns:1fr}
+    .channel-pill{border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);padding:20px 24px}
+    .work-thumb{aspect-ratio:16/9}
+    .skills-layout{grid-template-columns:1fr;gap:48px}
+    footer{flex-direction:column;gap:10px;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<div id="cur-dot"></div>
+<div id="cur-ring"></div>
+
+<nav>
+  <div class="nav-links">
+    <a href="#work">Work</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-watermark">MKS</div>
+  <div class="hero-tag">End-to-End Content Creator &amp; Video Editor</div>
+  <h1 class="hero-name">MOHIT<br><span>KUMAR</span><br>SHERSIYA</h1>
+  <p class="hero-desc">From ideation to final cut — I conceive, script, shoot, and edit stories that hold attention. Based in Jaipur, specializing in cinematic short films, social media content, and wedding films.</p>
+  <div class="hero-scroll">Scroll</div>
+</section>
+
+<div class="channels-strip">
+  <a href="https://www.youtube.com/@jaipurfoodies9025" target="_blank" class="channel-pill">
+    <div class="channel-pill-left">
+      <svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.8 15.5V8.5l6.2 3.5-6.2 3.5z"/></svg>
+      <div class="channel-pill-meta">
+        <span class="channel-pill-type">Long Form</span>
+        <span class="channel-pill-name">Jaipur Foodies</span>
+      </div>
+    </div>
+    <span class="channel-pill-arrow">&#8594;</span>
+  </a>
+  <a href="https://www.youtube.com/@healthbar01" target="_blank" class="channel-pill">
+    <div class="channel-pill-left">
+      <svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.8 15.5V8.5l6.2 3.5-6.2 3.5z"/></svg>
+      <div class="channel-pill-meta">
+        <span class="channel-pill-type">Short Form</span>
+        <span class="channel-pill-name">Health Bar</span>
+      </div>
+    </div>
+    <span class="channel-pill-arrow">&#8594;</span>
+  </a>
+</div>
+
+<section id="work">
+  <div class="section-label">Selected Work</div>
+  <div class="work-grid">
+
+    <div class="work-item">
+      <a href="https://youtu.be/kZ-QtOvbNsk" target="_blank" style="display:block;text-decoration:none;color:inherit;">
+        <div class="work-thumb">
+          <img src="https://img.youtube.com/vi/kZ-QtOvbNsk/maxresdefault.jpg" alt="Cinematic Food Vlog">
+          <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <div class="work-info">
+          <div><div class="work-title">CINEMATIC FOOD VLOG</div><div class="work-year">2021</div></div>
+          <div class="work-meta">Cinematic</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="work-item">
+      <a href="https://youtu.be/he1YObMaywE" target="_blank" style="display:block;text-decoration:none;color:inherit;">
+        <div class="work-thumb">
+          <img src="https://img.youtube.com/vi/he1YObMaywE/maxresdefault.jpg" alt="In Front of the Camera">
+          <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <div class="work-info">
+          <div><div class="work-title">IN FRONT OF THE CAMERA</div><div class="work-year">2021</div></div>
+          <div class="work-meta">On Camera</div>
+        </div>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<section id="about">
+  <div class="section-label">About</div>
+  <div class="skills-layout">
+    <div>
+      <h2 class="skills-heading">THE CREATOR<br>BEHIND THE<br><span>LENS</span></h2>
+      <p class="skills-bio">I'm Mohit Kumar Shersiya — a full-stack content creator based in Jaipur with 5 years of hands-on experience across every stage of the content pipeline. I don't just edit videos; I build them from the ground up. From the first spark of an idea to the final exported frame, I handle it all — ideation, scripting, visualizing, shooting, and editing.</p>
+      <p class="skills-bio">I've been in front of the camera as many times as I've been behind it, which gives me a unique edge: I understand what it takes to perform, not just to frame and cut. Whether it's a cinematic short film, a long-form YouTube documentary, a punchy social media reel, or an emotional wedding film — I bring both creative vision and technical precision to every project. My editing weapon of choice is DaVinci Resolve.</p>
+    </div>
+    <div>
+      <ul class="skills-list">
+        <li class="skill-item"><span class="skill-name">DaVinci Resolve</span><div class="skill-bar"><div class="skill-fill" style="width:95%"></div></div></li>
+        <li class="skill-item"><span class="skill-name">Color Grading</span><div class="skill-bar"><div class="skill-fill" style="width:90%"></div></div></li>
+        <li class="skill-item"><span class="skill-name">Scriptwriting</span><div class="skill-bar"><div class="skill-fill" style="width:88%"></div></div></li>
+        <li class="skill-item"><span class="skill-name">Cinematography</span><div class="skill-bar"><div class="skill-fill" style="width:85%"></div></div></li>
+        <li class="skill-item"><span class="skill-name">Short Form Editing</span><div class="skill-bar"><div class="skill-fill" style="width:92%"></div></div></li>
+        <li class="skill-item"><span class="skill-name">Sound Design</span><div class="skill-bar"><div class="skill-fill" style="width:78%"></div></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="section-label" style="justify-content:center;max-width:320px;margin:0 auto 40px;">Let's Work Together</div>
+  <h2 class="contact-heading">GOT A<br><span>PROJECT?</span></h2>
+  <p class="contact-sub">Available for freelance &amp; full-time opportunities</p>
+  <a href="mailto:mohit6097@gmail.com" class="contact-email">mohit6097@gmail.com</a>
+</section>
+
+<footer>
+  <span>&copy; 2024 Mohit Kumar Shersiya. All rights reserved.</span>
+  <span>End-to-End Content Creator &middot; Jaipur</span>
+</footer>
+
+<script>
+  const dot = document.getElementById('cur-dot');
+  const ring = document.getElementById('cur-ring');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{
+    mx=e.clientX; my=e.clientY;
+    dot.style.left=mx+'px'; dot.style.top=my+'px';
+  });
+  (function loop(){
+    rx+=(mx-rx)*0.13; ry+=(my-ry)*0.13;
+    ring.style.left=rx+'px'; ring.style.top=ry+'px';
+    requestAnimationFrame(loop);
+  })();
+  document.querySelectorAll('a,.work-item').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{ring.style.width='56px';ring.style.height='56px';ring.style.borderColor='rgba(255,60,0,0.9)'});
+    el.addEventListener('mouseleave',()=>{ring.style.width='34px';ring.style.height='34px';ring.style.borderColor='rgba(255,60,0,0.6)'});
+  });
+</script>
+</body>
+</html>
